@@ -86,6 +86,7 @@ const App: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showSettings, setShowSettings] = useState(false);
+  const [showGuide, setShowGuide] = useState(false);
 
   const [configs, setConfigs] = useState<AIKeyConfig[]>([
     { provider: 'glm', modelName: 'glm-4-flash', apiKey: localStorage.getItem('KEY_GLM') || '', enabled: true, guide: 'https://open.bigmodel.cn/' },
@@ -155,10 +156,69 @@ const App: React.FC = () => {
         </div>
       )}
 
+      {/* --- 使用指南弹窗 --- */}
+      {showGuide && (
+        <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-xl z-[100] flex items-center justify-center p-6">
+          <div className="bg-white rounded-[3.5rem] p-12 max-w-2xl w-full shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            <button onClick={() => setShowGuide(false)} className="absolute top-10 right-10 text-slate-300 hover:text-slate-600"><X size={36} /></button>
+            <h2 className="text-4xl font-black mb-10 text-slate-900">使用指南</h2>
+            <div className="space-y-8 text-slate-700">
+              <div>
+                <h3 className="text-2xl font-black text-indigo-600 mb-4">📋 什么是 FinFormatter?</h3>
+                <p className="text-lg leading-relaxed">FinFormatter 是一个智能金融论文排版架构师，能够帮助您快速分析和重构金融论文，支持多种学术期刊格式的自动适配。</p>
+              </div>
+              
+              <div>
+                <h3 className="text-2xl font-black text-indigo-600 mb-4">🚀 快速开始</h3>
+                <ol className="text-lg space-y-3 list-decimal list-inside">
+                  <li><strong>配置 API</strong>：点击右上角"API 管理"，选择一个 AI 服务商（支持 GLM、DeepSeek、Gemini），填入 API Key</li>
+                  <li><strong>输入论文</strong>：在左侧输入框粘贴论文内容，或点击"载入 Word"上传 Word 文档</li>
+                  <li><strong>选择期刊</strong>：在右侧选择目标期刊格式</li>
+                  <li><strong>开始分析</strong>：点击"开始重构"按钮，AI 将自动分析论文结构</li>
+                  <li><strong>导出结果</strong>：在预览区点击"复制"或"导出"保存结果</li>
+                </ol>
+              </div>
+
+              <div>
+                <h3 className="text-2xl font-black text-indigo-600 mb-4">🔑 API 配置说明</h3>
+                <div className="space-y-3 text-lg">
+                  <p><strong>GLM（推荐）</strong>：智谱清言的高性能模型，需要在 <a href="https://open.bigmodel.cn/" target="_blank" rel="noreferrer" className="text-indigo-600 hover:underline">open.bigmodel.cn</a> 申请</p>
+                  <p><strong>DeepSeek</strong>：深度求索的模型，需要在 <a href="https://platform.deepseek.com/" target="_blank" rel="noreferrer" className="text-indigo-600 hover:underline">platform.deepseek.com</a> 申请</p>
+                  <p><strong>Gemini</strong>：谷歌的 AI 模型，需要在 <a href="https://aistudio.google.com/" target="_blank" rel="noreferrer" className="text-indigo-600 hover:underline">aistudio.google.com</a> 申请</p>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-2xl font-black text-indigo-600 mb-4">💡 功能特性</h3>
+                <ul className="text-lg space-y-3 list-disc list-inside">
+                  <li>📄 支持 Word 文档导入</li>
+                  <li>🎯 支持多种金融学术期刊格式自动适配</li>
+                  <li>✨ AI 驱动的智能论文结构分析与重构</li>
+                  <li>📊 自动识别标题、摘要、表格、参考文献等结构</li>
+                  <li>💾 支持复制和 Word 格式导出</li>
+                  <li>🔒 API Key 本地存储，安全私密</li>
+                </ul>
+              </div>
+
+              <div>
+                <h3 className="text-2xl font-black text-indigo-600 mb-4">⚙️ 其他功能</h3>
+                <ul className="text-lg space-y-3 list-disc list-inside">
+                  <li><strong>清空</strong>：重置所有输入和输出</li>
+                  <li><strong>复制</strong>：复制分析结果到剪贴板</li>
+                  <li><strong>导出</strong>：导出为 Word 格式文档</li>
+                </ul>
+              </div>
+            </div>
+            <button onClick={() => setShowGuide(false)} className="w-full mt-10 py-6 bg-slate-900 text-white rounded-[2rem] font-black text-xl">关闭</button>
+          </div>
+        </div>
+      )}
+
       {/* --- Header --- */}
       <header className="bg-white/90 border-b-2 border-slate-200 px-12 py-8 flex items-center justify-between sticky top-0 z-50 backdrop-blur-md">
         <div className="flex items-center gap-5"><Columns size={40} className="text-indigo-600" /><h1 className="text-3xl font-black tracking-tighter text-slate-900">FinFormatter <span className="text-indigo-600">Pro</span></h1></div>
         <div className="flex items-center gap-6">
+          <button onClick={() => setShowGuide(true)} className="flex items-center gap-2 text-slate-600 hover:text-indigo-600 font-black transition-colors"><Info size={20} /> 使用指南</button>
           <button onClick={handleReset} className="flex items-center gap-2 text-slate-400 hover:text-rose-600 font-black"><Eraser size={20} /> 清空</button>
           <button onClick={() => setShowSettings(true)} className="flex items-center gap-3 px-8 py-4 bg-slate-100 rounded-full font-black text-slate-900 hover:bg-slate-900 hover:text-white transition-all"><Settings size={20} /> API 管理</button>
         </div>
@@ -168,7 +228,7 @@ const App: React.FC = () => {
         {/* 左侧输入 */}
         <div className="xl:col-span-7 bg-white rounded-[4rem] border-2 border-slate-200 shadow-2xl overflow-hidden flex flex-col">
           <div className="px-12 py-10 border-b-2 border-slate-100 flex items-center justify-between">
-            <div className="text-slate-900"><span className="text-sm font-black text-indigo-600 uppercase block">Step 02</span><h3 className="text-2xl font-black">论文内容</h3></div>
+            <div className="text-slate-900"><h3 className="text-2xl font-black">论文内容</h3></div>
             <select value={selectedJournalId} onChange={(e) => setSelectedJournalId(e.target.value)} className="bg-slate-100 border-none rounded-full px-6 py-3 font-black text-slate-700">
               {JOURNALS.map(j => <option key={j.id} value={j.id}>{j.journal}</option>)}
             </select>
