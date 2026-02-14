@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useRef } from 'react';
 import { 
   Settings, RefreshCcw, Upload, Zap, Download, 
-  Columns, CheckCircle2, FileSearch, X, Info, AlertTriangle, Eraser, PlusCircle, Copy, ExternalLink
+  Columns, CheckCircle2, FileSearch, X, Info, AlertTriangle, Eraser, PlusCircle, Copy, ExternalLink, ShieldCheck
 } from 'lucide-react';
 import { Paper, Journal, AnalysisResult, Segment, AIKeyConfig, AIProvider } from './types';
 import { JOURNALS } from './constants';
@@ -89,9 +89,9 @@ const App: React.FC = () => {
   const [showGuide, setShowGuide] = useState(false);
 
   const [configs, setConfigs] = useState<AIKeyConfig[]>([
-    { provider: 'glm', modelName: 'glm-4-flash', apiKey: localStorage.getItem('KEY_GLM') || '', enabled: true, guide: 'https://open.bigmodel.cn/' },
-    { provider: 'deepseek', modelName: 'deepseek-chat', apiKey: localStorage.getItem('KEY_DS') || '', enabled: false, guide: 'https://platform.deepseek.com/' },
-    { provider: 'gemini', modelName: 'gemini-1.5-flash', apiKey: localStorage.getItem('KEY_GEMINI') || '', enabled: false, guide: 'https://aistudio.google.com/' }
+    { provider: 'glm', modelName: 'glm-4-flash', apiKey: localStorage.getItem('KEY_GLM') || '', enabled: true, guide: 'https://open.bigmodel.cn/usercenter/apikeys' },
+    { provider: 'deepseek', modelName: 'deepseek-chat', apiKey: localStorage.getItem('KEY_DS') || '', enabled: false, guide: 'https://platform.deepseek.com/api_keys' },
+    { provider: 'gemini', modelName: 'gemini-1.5-flash', apiKey: localStorage.getItem('KEY_GEMINI') || '', enabled: false, guide: 'https://aistudio.google.com/app/apikey' }
   ]);
 
   const selectedJournal = useMemo(() => JOURNALS.find(j => j.id === selectedJournalId) || JOURNALS[0], [selectedJournalId]);
@@ -131,7 +131,17 @@ const App: React.FC = () => {
         <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-xl z-[100] flex items-center justify-center p-6">
           <div className="bg-white rounded-[3.5rem] p-12 max-w-xl w-full shadow-2xl relative">
             <button onClick={() => setShowSettings(false)} className="absolute top-10 right-10 text-slate-300 hover:text-slate-600"><X size={36} /></button>
-            <h2 className="text-3xl font-black mb-10 text-slate-900">API 管理中心</h2>
+            <h2 className="text-3xl font-black mb-4 text-slate-900">API 管理中心</h2>
+            
+            {/* 额度与隐私说明 */}
+            <div className="bg-indigo-50 border-l-4 border-indigo-600 p-4 mb-8 rounded-r-xl">
+              <p className="text-sm text-indigo-900 leading-relaxed font-bold">
+                🛡️ <span className="underline">零成本、高隐私模式</span>：<br />
+                本项目不存储您的 API Key，所有 Key 仅保存在您本机的浏览器缓存中。
+                分析过程消耗的是您自备账号的免费额度，不会产生额外费用，请放心使用。
+              </p>
+            </div>
+
             <div className="space-y-6">
               {configs.map((cfg, idx) => (
                 <div key={cfg.provider} className={`p-6 rounded-[2rem] border-2 ${cfg.enabled ? 'border-indigo-600 bg-indigo-50/30' : 'border-slate-100'}`}>
@@ -139,18 +149,18 @@ const App: React.FC = () => {
                     <span className="font-black text-indigo-600 uppercase tracking-widest">{cfg.provider}</span>
                     <input type="checkbox" checked={cfg.enabled} onChange={(e) => {
                       const nc = [...configs]; nc[idx].enabled = e.target.checked; setConfigs(nc);
-                    }} className="w-6 h-6 accent-indigo-600" />
+                    }} className="w-6 h-6 accent-indigo-600 cursor-pointer" />
                   </div>
                   <input type="password" value={cfg.apiKey} placeholder="粘贴 API Key" onChange={(e) => {
                     const nc = [...configs]; nc[idx].apiKey = e.target.value; setConfigs(nc);
                     localStorage.setItem(`KEY_${cfg.provider.toUpperCase()}`, e.target.value);
                   }} className="w-full bg-white border-none rounded-xl px-5 py-3 font-mono shadow-sm mb-2" />
-                  <a href={cfg.guide} target="_blank" rel="noreferrer" className="text-xs text-slate-400 flex items-center gap-1 hover:text-indigo-600">
+                  <a href={cfg.guide} target="_blank" rel="noreferrer" className="text-xs text-slate-400 flex items-center gap-1 hover:text-indigo-600 transition-colors">
                     <ExternalLink size={12}/> 获取 {cfg.provider.toUpperCase()} API Key 指引
                   </a>
                 </div>
               ))}
-              <button onClick={() => setShowSettings(false)} className="w-full py-6 bg-slate-900 text-white rounded-[2rem] font-black text-xl shadow-2xl">确认保存</button>
+              <button onClick={() => setShowSettings(false)} className="w-full py-6 bg-slate-900 text-white rounded-[2rem] font-black text-xl shadow-2xl active:scale-95 transition-transform">确认并保存配置</button>
             </div>
           </div>
         </div>
@@ -170,46 +180,31 @@ const App: React.FC = () => {
               
               <div>
                 <h3 className="text-2xl font-black text-indigo-600 mb-4">🚀 快速开始</h3>
-                <ol className="text-lg space-y-3 list-decimal list-inside">
-                  <li><strong>配置 API</strong>：点击右上角"API 管理"，选择一个 AI 服务商（支持 GLM、DeepSeek、Gemini），填入 API Key</li>
-                  <li><strong>输入论文</strong>：在左侧输入框粘贴论文内容，或点击"载入 Word"上传 Word 文档</li>
-                  <li><strong>选择期刊</strong>：在右侧选择目标期刊格式</li>
-                  <li><strong>开始分析</strong>：点击"开始重构"按钮，AI 将自动分析论文结构</li>
-                  <li><strong>导出结果</strong>：在预览区点击"复制"或"导出"保存结果</li>
+                <ol className="text-lg space-y-3 list-decimal list-inside font-medium">
+                  <li><strong>配置 API</strong>：点击右上角"API 管理"，前往各模型官网注册获取免费 API Key。</li>
+                  <li><strong>输入论文</strong>：在左侧输入框粘贴内容，或点击"载入 Word"上传。</li>
+                  <li><strong>选择期刊</strong>：在下拉菜单中选择目标期刊格式。</li>
+                  <li><strong>开始重构</strong>：点击按钮，AI 将在本地调用接口完成结构分析。</li>
                 </ol>
               </div>
 
               <div>
-                <h3 className="text-2xl font-black text-indigo-600 mb-4">🔑 API 配置说明</h3>
+                <h3 className="text-2xl font-black text-indigo-600 mb-4">🔑 获取 API Key 路径</h3>
                 <div className="space-y-3 text-lg">
-                  <p><strong>GLM（推荐）</strong>：智谱清言的高性能模型，需要在 <a href="https://open.bigmodel.cn/" target="_blank" rel="noreferrer" className="text-indigo-600 hover:underline">open.bigmodel.cn</a> 申请</p>
-                  <p><strong>DeepSeek</strong>：深度求索的模型，需要在 <a href="https://platform.deepseek.com/" target="_blank" rel="noreferrer" className="text-indigo-600 hover:underline">platform.deepseek.com</a> 申请</p>
-                  <p><strong>Gemini</strong>：谷歌的 AI 模型，需要在 <a href="https://aistudio.google.com/" target="_blank" rel="noreferrer" className="text-indigo-600 hover:underline">aistudio.google.com</a> 申请</p>
+                  <p><strong>GLM (推荐)</strong>：前往 <a href="https://open.bigmodel.cn/usercenter/apikeys" target="_blank" rel="noreferrer" className="text-indigo-600 hover:underline">智谱 AI 平台</a> 获取。</p>
+                  <p><strong>DeepSeek</strong>：前往 <a href="https://platform.deepseek.com/api_keys" target="_blank" rel="noreferrer" className="text-indigo-600 hover:underline">DeepSeek 开放平台</a> 获取。</p>
+                  <p><strong>Gemini</strong>：前往 <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noreferrer" className="text-indigo-600 hover:underline">Google AI Studio</a> 获取。</p>
                 </div>
               </div>
 
-              <div>
-                <h3 className="text-2xl font-black text-indigo-600 mb-4">💡 功能特性</h3>
-                <ul className="text-lg space-y-3 list-disc list-inside">
-                  <li>📄 支持 Word 文档导入</li>
-                  <li>🎯 支持多种金融学术期刊格式自动适配</li>
-                  <li>✨ AI 驱动的智能论文结构分析与重构</li>
-                  <li>📊 自动识别标题、摘要、表格、参考文献等结构</li>
-                  <li>💾 支持复制和 Word 格式导出</li>
-                  <li>🔒 API Key 本地存储，安全私密</li>
-                </ul>
-              </div>
-
-              <div>
-                <h3 className="text-2xl font-black text-indigo-600 mb-4">⚙️ 其他功能</h3>
-                <ul className="text-lg space-y-3 list-disc list-inside">
-                  <li><strong>清空</strong>：重置所有输入和输出</li>
-                  <li><strong>复制</strong>：复制分析结果到剪贴板</li>
-                  <li><strong>导出</strong>：导出为 Word 格式文档</li>
-                </ul>
+              <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100">
+                <h3 className="text-xl font-black text-slate-900 mb-2 flex items-center gap-2"><ShieldCheck className="text-emerald-600" /> 隐私承诺</h3>
+                <p className="text-sm leading-relaxed text-slate-500">
+                  您的数据仅在浏览器本地处理，绝不上传云端。所有 API 请求均为您的客户端与官方服务器直接通信。
+                </p>
               </div>
             </div>
-            <button onClick={() => setShowGuide(false)} className="w-full mt-10 py-6 bg-slate-900 text-white rounded-[2rem] font-black text-xl">关闭</button>
+            <button onClick={() => setShowGuide(false)} className="w-full mt-10 py-6 bg-slate-900 text-white rounded-[2rem] font-black text-xl active:scale-95 transition-transform">返回</button>
           </div>
         </div>
       )}
@@ -220,25 +215,31 @@ const App: React.FC = () => {
         <div className="flex items-center gap-6">
           <button onClick={() => setShowGuide(true)} className="flex items-center gap-2 text-slate-600 hover:text-indigo-600 font-black transition-colors"><Info size={20} /> 使用指南</button>
           <button onClick={handleReset} className="flex items-center gap-2 text-slate-400 hover:text-rose-600 font-black"><Eraser size={20} /> 清空</button>
-          <button onClick={() => setShowSettings(true)} className="flex items-center gap-3 px-8 py-4 bg-slate-100 rounded-full font-black text-slate-900 hover:bg-slate-900 hover:text-white transition-all"><Settings size={20} /> API 管理</button>
+          <button onClick={() => setShowSettings(true)} className="flex items-center gap-3 px-8 py-4 bg-slate-100 rounded-full font-black text-slate-900 hover:bg-slate-900 hover:text-white transition-all shadow-sm"><Settings size={20} /> API 管理</button>
         </div>
       </header>
 
       <main className="flex-1 container mx-auto p-10 max-w-[1700px] grid grid-cols-1 xl:grid-cols-12 gap-12">
         {/* 左侧输入 */}
         <div className="xl:col-span-7 bg-white rounded-[4rem] border-2 border-slate-200 shadow-2xl overflow-hidden flex flex-col">
-          <div className="px-12 py-10 border-b-2 border-slate-100 flex items-center justify-between">
-            <div className="text-slate-900"><h3 className="text-2xl font-black">论文内容</h3></div>
-            <select value={selectedJournalId} onChange={(e) => setSelectedJournalId(e.target.value)} className="bg-slate-100 border-none rounded-full px-6 py-3 font-black text-slate-700">
+          <div className="px-12 py-10 border-b-2 border-slate-100 flex items-center justify-between bg-slate-50/30">
+            <div className="text-slate-900"><span className="text-sm font-black text-indigo-600 uppercase block mb-1">Step 02</span><h3 className="text-2xl font-black">论文草稿</h3></div>
+            <select value={selectedJournalId} onChange={(e) => setSelectedJournalId(e.target.value)} className="bg-white border border-slate-200 rounded-full px-6 py-3 font-black text-slate-700 cursor-pointer shadow-sm">
               {JOURNALS.map(j => <option key={j.id} value={j.id}>{j.journal}</option>)}
             </select>
           </div>
           <div className="p-12 flex-1 flex flex-col min-h-[700px]">
-            <textarea value={fullText} onChange={(e) => setFullText(e.target.value)} className="flex-1 w-full text-2xl font-serif outline-none resize-none text-slate-700" placeholder="在此粘贴内容..." />
+            <textarea value={fullText} onChange={(e) => setFullText(e.target.value)} className="flex-1 w-full text-2xl font-serif outline-none resize-none text-slate-700" placeholder="在此粘贴您的论文内容..." />
             <div className="mt-8 flex justify-between items-center">
-              <button onClick={() => fileInputRef.current?.click()} className="text-indigo-600 font-black flex items-center gap-2"><Upload size={20}/> 载入 Word</button>
-              <button onClick={runAnalysis} disabled={isAnalyzing} className="px-16 py-8 bg-slate-900 text-white rounded-[2.5rem] font-black text-2xl flex items-center gap-6">
-                {isAnalyzing ? <RefreshCcw className="animate-spin" /> : <Zap />} {isAnalyzing ? '分析中' : '开始重构'}
+              <div className="flex flex-col gap-2">
+                <button onClick={() => fileInputRef.current?.click()} className="text-indigo-600 font-black flex items-center gap-2 hover:translate-x-1 transition-transform"><Upload size={20}/> 载入 Word 文档</button>
+                <div className="flex items-center gap-2 text-slate-400">
+                   <ShieldCheck size={14} className="text-emerald-500" />
+                   <span className="text-xs font-bold">全本地解析，保护学术安全</span>
+                </div>
+              </div>
+              <button onClick={runAnalysis} disabled={isAnalyzing} className={`px-16 py-8 rounded-[2.5rem] font-black text-2xl uppercase flex items-center gap-6 shadow-2xl transition-all ${isAnalyzing ? 'bg-slate-100 text-slate-300' : 'bg-slate-900 text-white hover:bg-indigo-600 active:scale-95'}`}>
+                {isAnalyzing ? <RefreshCcw className="animate-spin" size={32} /> : <Zap size={32} />} {isAnalyzing ? '分析中' : '开始重构'}
               </button>
             </div>
             <input type="file" ref={fileInputRef} onChange={async (e) => {
@@ -251,27 +252,29 @@ const App: React.FC = () => {
           </div>
         </div>
 
-        {/* 右侧预览 - 修复了按钮遮挡问题 */}
+        {/* 右侧预览 */}
         <div className="xl:col-span-5 relative">
           {result && !isAnalyzing ? (
-            <div className="bg-white rounded-[3.5rem] border-2 border-slate-200 shadow-2xl flex flex-col h-full overflow-hidden">
-              {/* 工具栏改为 Sticky 布局，放置在内容顶部上方 */}
-              <div className="sticky top-0 z-20 bg-white/80 backdrop-blur-md px-10 py-6 border-b border-slate-100 flex justify-end gap-4">
-                <button onClick={handleCopy} className="bg-indigo-600 text-white px-8 py-4 rounded-full font-black flex items-center gap-2 hover:scale-105 transition-all"><Copy size={20}/> 复制</button>
-                <button onClick={() => exportToDocx(result.segments, selectedJournal)} className="bg-emerald-600 text-white px-8 py-4 rounded-full font-black flex items-center gap-2 hover:scale-105 transition-all"><Download size={20}/> 导出</button>
+            <div className="bg-white rounded-[3.5rem] border-2 border-slate-200 shadow-2xl flex flex-col h-full max-h-[1000px] overflow-hidden">
+              <div className="sticky top-0 z-20 bg-white/80 backdrop-blur-md px-10 py-6 border-b border-slate-100 flex justify-end gap-4 shadow-sm">
+                <button onClick={handleCopy} className="bg-indigo-600 text-white px-8 py-4 rounded-full font-black flex items-center gap-2 hover:scale-110 active:scale-95 transition-all"><Copy size={20}/> 复制结果</button>
+                <button onClick={() => exportToDocx(result.segments, selectedJournal)} className="bg-emerald-600 text-white px-8 py-4 rounded-full font-black flex items-center gap-2 hover:scale-110 active:scale-95 transition-all"><Download size={20}/> 导出 Word</button>
               </div>
               
-              <div className="p-14 overflow-y-auto flex-1 select-text">
+              <div className="p-14 overflow-y-auto flex-1 select-text scroll-smooth">
                 {result.segments.map((seg, idx) => <SegmentRenderer key={idx} segment={seg} />)}
               </div>
             </div>
           ) : (
-            <div className="h-full flex flex-col items-center justify-center text-center bg-white border-4 border-dashed border-slate-100 rounded-[5rem] opacity-50">
-              <FileSearch size={120} className="text-slate-100 mb-6" /><h3 className="text-slate-300 font-black text-2xl uppercase tracking-widest">等待识别</h3>
+            <div className="h-full min-h-[800px] flex flex-col items-center justify-center text-center bg-white border-4 border-dashed border-slate-100 rounded-[5rem] opacity-50 px-10">
+              <FileSearch size={120} className="text-slate-100 mb-6" strokeWidth={1} /><h3 className="text-slate-300 font-black text-2xl uppercase tracking-[0.4em]">等待重构指令</h3>
             </div>
           )}
         </div>
       </main>
+      <footer className="bg-white border-t-2 border-slate-100 py-16 text-center">
+         <p className="text-sm font-black text-slate-300 uppercase tracking-[0.6em]">Academic Integrity & Privacy First</p>
+      </footer>
     </div>
   );
 };
