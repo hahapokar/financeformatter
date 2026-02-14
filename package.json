@@ -1,0 +1,28 @@
+{
+  "name": "finformatter---financial-journal-architect",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "deploy": "npm run build"
+  },
+  "dependencies": {
+    "@google/genai": "^1.41.0",
+    "docx": "^9.5.2",
+    "file-saver": "^2.0.5",
+    "lucide-react": "^0.563.0",
+    "mammoth": "^1.11.0",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
+  },
+  "devDependencies": {
+    "@types/file-saver": "^2.0.7",
+    "@types/node": "^22.19.11",
+    "@vitejs/plugin-react": "^5.0.0",
+    "typescript": "~5.8.2",
+    "vite": "^6.2.0"
+  }
+}

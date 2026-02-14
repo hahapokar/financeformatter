@@ -1,0 +1,5 @@
+{
+  "name": "FinFormatter - Financial Journal Architect",
+  "description": "A privacy-focused intelligent formatting assistant for financial academic journals, supporting automatic heading conversion, title optimization, and journal-specific rule validation.",
+  "requestFramePermissions": []
+}
