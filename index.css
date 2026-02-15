@@ -95,3 +95,20 @@ table {
 .animate-shake {
   animation: shake 0.2s ease-in-out 0s 2;
 }
+
+/* Mobile tweaks */
+@media (max-width: 640px) {
+  body {
+    font-size: 14px;
+  }
+  .preview-paper {
+    padding: 2rem !important;
+  }
+  header h1 {
+    font-size: 1.75rem;
+  }
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
